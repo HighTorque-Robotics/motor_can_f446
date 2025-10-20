@@ -1,0 +1,230 @@
+#include "livelybot_can.h"
+#include "can.h"
+#include <string.h>
+
+
+/**
+ * @brief DQ电压控制
+ * @param id 电机ID
+ * @param vol Q相电压，单位：0.1v，如 vol = 10 表示 Q 相电压为 1V
+ */
+void motor_control_volt(CAN_HandleTypeDef *hcan, uint8_t id, int16_t vol)
+{
+    static uint8_t tdata[] = {0x01, 0x00, 0x08, 0x05, 0x1b, 0x00, 0x00};
+
+    // *(int16_t *)&tdata[5] = vol;
+    memcpy(&tdata[5], &vol, sizeof(int16_t));
+
+    can_send(hcan, id, tdata, sizeof(tdata));
+}
+
+
+/**
+ * @brief DQ电流控制
+ * @param id 电机ID
+ * @param cur Q相电流，单位：0.1A，如 cur = 10 表示 Q 相电压为 1A
+ */
+void motor_control_cur(CAN_HandleTypeDef *hcan, uint8_t id, int16_t cur)
+{
+    static uint8_t tdata[] = {0x01, 0x00, 0x09, 0x05, 0x1c, 0x00, 0x00};
+
+    // *(int16_t *)&tdata[5] = cur;
+    memcpy(&tdata[5], &cur, sizeof(int16_t));
+
+    can_send(hcan, id, tdata, sizeof(tdata));
+}
+
+/**
+ * @brief 位置控制
+ * @param id  电机ID
+ * @param pos 位置：单位 0.0001 圈，如 pos = 5000 表示转到 0.5 圈的位置。
+ * @param 力矩：单位：0.01 NM，如 torque = 110 表示最大力矩为 1.1NM
+ */
+void motor_control_pos(CAN_HandleTypeDef *hcan, uint8_t id, int32_t pos, int16_t tqe)
+{
+    uint8_t tdata[8] = {0x07, 0x07, 0x0A, 0x05, 0x00, 0x00, 0x80, 0x00};
+
+    *(int16_t *)&tdata[2] = pos;
+    *(int16_t *)&tdata[6] = tqe;
+
+    can_send(hcan, 0x8000 | id, tdata, 8);
+}
+
+
+/**
+ * @brief 速度控制
+ * @param id 电机ID
+ * @param vel 速度：单位 0.00025 转/秒，如 val = 1000 表示 0.25 转/秒
+ * @param tqe 力矩：单位：0.01 NM，如 torque = 110 表示最大力矩为 1.1NM
+ */
+void motor_control_vel(CAN_HandleTypeDef *hcan, uint8_t id, int16_t vel, int16_t tqe)
+{
+    uint8_t tdata[8] = {0x07, 0x07, 0x00, 0x80, 0x20, 0x00, 0x80, 0x00};
+
+    *(int16_t *)&tdata[4] = vel;
+    *(int16_t *)&tdata[6] = tqe;
+
+    can_send(hcan, 0x8000 | id, tdata, 8);
+}
+
+
+/**
+ * @brief 力矩模式
+ * @param id 电机ID
+ * @param tqe 力矩：单位：0.01 NM，如 torque = 110 表示最大力矩为 1.1NM
+ */
+void motor_control_tqe(CAN_HandleTypeDef *hcan, uint8_t id, int32_t tqe)
+{
+    uint8_t tdata[8] = {0x05, 0x13, 0x00, 0x80, 0x20, 0x00, 0x80, 0x00};
+
+    *(int16_t *)&tdata[2] = tqe;
+
+    can_send(hcan, 0x8000 | id, tdata, 4);
+}
+
+
+/**
+ * @brief 电机位置-速度-最大力矩控制，int16型
+ * @param id  电机ID
+ * @param pos 位置：单位 0.0001 圈，如 pos = 5000 表示转到 0.5 圈的位置。
+ * @param vel 速度：单位 0.00025 转/秒，如 val = 1000 表示 0.25 转/秒
+ * @param tqe 最大力矩：单位：0.01 NM，如 torque = 110 表示最大力矩为 1.1NM
+ */
+void motor_control_pos_vel_tqe(CAN_HandleTypeDef *hcan, uint8_t id, int16_t pos, int16_t vel, int16_t tqe)
+{
+    static uint8_t tdata[8] = {0x07, 0x35, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+    *(int16_t *)&tdata[2] = vel;
+    *(int16_t *)&tdata[4] = tqe;
+    *(int16_t *)&tdata[6] = pos;
+
+    can_send(hcan, 0x8000 | id, tdata, 8);
+}
+
+/**
+ * @brief 梯形控制（电机固件 v4.6.0 开始支持）
+ * @param id  电机ID
+ * @param pos 位置：单位 0.0001 圈，如 pos = 5000 表示转到 0.5 圈的位置。
+ * @param val 速度：单位 0.00025 转/秒，如 val = 1000 表示 0.25 转/秒
+ * @param acc 加速度：单位 0.01 转/秒^2，如 vel = 40 表示 0.4 转/秒^2
+ */
+void motor_control_pos_vel_acc(CAN_HandleTypeDef *hcan, uint8_t id, int16_t pos, int16_t vel, int16_t acc)
+{
+    static uint8_t tdata[] = {0x07, 0x2d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+    memcpy(&tdata[2], &pos, sizeof(int16_t));
+    memcpy(&tdata[4], &vel, sizeof(int16_t));
+    memcpy(&tdata[6], &acc, sizeof(int16_t));
+
+    can_send(hcan, id, tdata, sizeof(tdata));
+}
+
+
+/**
+ * @brief 运控模式（MIT模式），电机固件 v4.6.0 开始支持
+ */
+void motor_control_pos_vel_tqe_kp_kd(CAN_HandleTypeDef *hcan, uint8_t id, int16_t pos, int16_t vel, int16_t tqe, int16_t kp, int16_t kd)
+{
+    static uint8_t tdata[8] = {0};
+
+    tdata[0] = pos & 0xff;
+    tdata[1] = (pos >> 8) & 0xff;
+    tdata[2] = vel & 0xff;
+    tdata[3] = ((vel >> 8) & 0x0f) | ((tqe & 0x0f) << 4);
+    tdata[4] = (tqe >> 4) & 0xff;
+    tdata[5] = kp & 0xff;
+    tdata[6] = (kp >> 8) & 0x0f | ((kd & 0x0f) << 4);
+    tdata[7] = kd >> 4;
+
+    can_send(hcan, 0x18000 | id, tdata, sizeof(tdata));
+}
+/**
+ * @brief 将当前位置设为电机零位(此指令只是在 RAM 中修改，还需配合 `conf write` 指令保存到 flash 中)
+ * @param id 电机ID
+ */
+void rezero_pos(CAN_HandleTypeDef *hcan, uint8_t id)
+{
+    uint8_t tdata[] = {0x40, 0x01, 0x04, 0x64, 0x20, 0x63, 0x0a};
+
+    can_send(hcan, 0x8000 | id, tdata, sizeof(tdata));
+    HAL_Delay(1000);  // 建议延时1s
+
+    conf_write(hcan, id);  // 保存设置
+}
+
+
+/**
+ * @brief 将电机 RAM 中设置保存到 flash 中(使用此指令后建议给电机重新上电)
+ * @param id 电机ID
+ */
+void conf_write(CAN_HandleTypeDef *hcan, uint8_t id)
+{
+    uint8_t tdata[] = {0x05, 0xb3, 0x02, 0x00, 0x00};
+
+    can_send(hcan, 0x8000 | id, tdata, sizeof(tdata));
+}
+
+
+/**
+ * @brief 周期返回电机位置、速度、力矩数据(返回数据格式和使用 0x17，0x01 指令获取的格式一样)
+ * @param id 电机ID
+ * @param t 返回周期（单位：ms）
+ */
+void timed_return_motor_status(CAN_HandleTypeDef *hcan, uint8_t id, int16_t t_ms)
+{
+    uint8_t tdata[] = {0x05, 0xb4, 0x02, 0x00, 0x00};
+
+    *(int16_t *)&tdata[3] = t_ms;
+
+    can_send(hcan, 0x8000 | id, tdata, sizeof(tdata));
+}
+
+
+/**
+ * @brief 电机停止，注意：需让电机停止后再重置零位，否则无效
+ * @param fdcanHandle &hfdcanx
+ * @param motor id 电机ID
+ */
+void set_motor_stop(CAN_HandleTypeDef *fdcanHandle, uint8_t id)
+{
+    static uint8_t cmd[] = {0x01, 0x00, 0x00};
+
+    can_send(fdcanHandle, 0x8000 | id, cmd, sizeof(cmd));
+}
+
+
+/**
+ * @brief 电机刹车
+ * @param fdcanHandle &hfdcanx
+ * @param motor id 电机ID
+ */
+void set_motor_brake(CAN_HandleTypeDef *fdcanHandle, uint8_t id)
+{
+    static uint8_t cmd[] = {0x01, 0x00, 0x0f};
+
+    can_send(fdcanHandle, 0x8000 | id, cmd, sizeof(cmd));
+}
+
+
+/**
+ * @brief 读取电机位置、速度、力矩指令
+ * @param id 电机ID
+ */
+void motor_read(CAN_HandleTypeDef *hcan, uint8_t id)
+{
+    static uint8_t tdata[8] = {0x17, 0x01};
+
+    can_send(hcan, 0x8000 | id, tdata, sizeof(tdata));
+}
+
+/**
+ * @brief 获取电机固件版本
+ * @param fdcanHandle &hfdcanx
+ * @param id id 电机ID
+ */
+void send_read_motor_version(CAN_HandleTypeDef *hcan, uint8_t id)
+{
+    const uint8_t cmd[] = {0x15, 0xB5, 0x02};
+
+    can_send(hcan, 0x8000 | id, (uint8_t *)cmd, sizeof(cmd));
+}
