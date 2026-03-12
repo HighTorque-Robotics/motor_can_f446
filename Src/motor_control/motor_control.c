@@ -160,12 +160,18 @@ void motor_set_pos_vel_tqe_kp_kd(port_t portx, const uint8_t id, const float pos
 {
     CAN_HandleTypeDef *fdcanHandle = motor_get_fdcan_pointer(portx);
     const motor_type_t model = motor_get_model2(portx, id);
+     /* 将单位转换成转 */
     const float pos_turns = conv_to_turns(pos, MOTOR_DATA_TYPE_FLAG);
     const float vel_turns = conv_to_turns(vel, MOTOR_DATA_TYPE_FLAG);
-    const float tqe_val_adjust = tqe_adjust(tqe, model);
-    const float kp_val_adjust = pid_adjust(kp, model);
-    const float kd_val_adjust = pid_adjust(kd, model);
+    const float kp_turns = conv_from_turns(kp, MOTOR_DATA_TYPE_FLAG);
+    const float kd_turns = conv_from_turns(kd, MOTOR_DATA_TYPE_FLAG);
 
+    /* 力矩修正 */
+    const float tqe_val_adjust = tqe_adjust(tqe, model);
+    const float kp_val_adjust = pid_adjust(kp_turns, model);
+    const float kd_val_adjust = pid_adjust(kd_turns, model);
+
+    /* float -> int */
     const uint16_t pos_raw = mit_float2int(pos_turns, -3.2768f, 3.2767f, 16);
     const uint16_t vel_raw = mit_float2int(vel_turns, -2.0f, 2.0f, 12);
     const uint16_t tqe_raw = mit_float2int(tqe_val_adjust, -10.0f, 10.0f, 12);
