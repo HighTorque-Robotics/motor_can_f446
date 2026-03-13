@@ -8,7 +8,7 @@
 
 const motor_tqe_adj_t motor_tqe_adj[MOTOR_TYPE_COUNT] =
 {
-    /* 新名称 */
+    /* 旧名称 */
     [M3536_32] = {0.35f, 0.0f},
     [M4438_30] = {0.64f, 0.0f},
     [M4438_32] = {0.64f, 0.0f},
