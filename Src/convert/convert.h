@@ -45,7 +45,7 @@ typedef enum  // 数据类型
 } data_type_t;
 
 
-typedef enum  // 电机型号
+typedef enum __attribute__((packed)) // 电机型号
 {
     MNULL = 0,
 
@@ -76,11 +76,11 @@ typedef enum  // 电机型号
     M3532_02_8353,
     M4530_02_8353,
     M5036_02_8353,
-    
+
     MGENERAL,  // 无修正
     MNONE,
     MOTOR_TYPE_COUNT,  // 电机类型数量
-} motor_type_t;
+} __attribute__((packed)) motor_type_t;
 
 
 typedef struct
