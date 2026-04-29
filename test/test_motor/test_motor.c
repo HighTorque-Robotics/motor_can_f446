@@ -32,15 +32,18 @@ void test_motor_control(const uint8_t id)
         motor_set_pos_vel_MAXtqe(portx, id, 2, 0.1, 10);
         break;
     case 7:
-        motor_set_pos_vel_acc(portx, id, 2, 0.5, 0.1);
+        motor_set_vel_acc(portx, id, 0.5, 0.1);
         break;
     case 8:
-        motor_set_pos_vel_tqe_kp_kd(portx, id, 1, 0.1, 0, 1, 0.1);
+        motor_set_pos_vel_acc(portx, id, 2, 0.5, 0.1);
         break;
     case 9:
-        motor_set_stop(portx, id);
+        motor_set_pos_vel_tqe_kp_kd(portx, id, 1, 0.1, 0, 1, 0.1);
         break;
     case 10:
+        motor_set_stop(portx, id);
+        break;
+    case 11:
         motor_set_brake(portx, id);
         break;
 

@@ -18,6 +18,7 @@ void motor_control_pos(CAN_HandleTypeDef *hcanx, uint8_t id, int32_t pos, int16_
 void motor_control_vel(CAN_HandleTypeDef *hcanx, uint8_t id, int16_t vel, int16_t tqe);
 void motor_control_tqe(CAN_HandleTypeDef *hcanx, uint8_t id, int32_t tqe);
 void motor_control_pos_vel_tqe(CAN_HandleTypeDef *hcanx, uint8_t id, int16_t pos, int16_t vel, int16_t tqe);
+void motor_control_vel_acc(FDCAN_HandleTypeDef *hfdcanx, uint8_t id, int16_t vel, int16_t acc);
 void motor_control_pos_vel_acc(CAN_HandleTypeDef *hcanx, uint8_t id, int16_t pos, int16_t vel, int16_t acc);
 void motor_control_pos_vel_tqe_kp_kd(CAN_HandleTypeDef *hcanx, uint8_t id, int16_t pos, int16_t val, int16_t tqe, int16_t kp, int16_t kd);
 
