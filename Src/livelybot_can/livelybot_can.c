@@ -110,7 +110,7 @@ void motor_control_pos_vel_tqe(CAN_HandleTypeDef *hcan, uint8_t id, int16_t pos,
  */
 void motor_control_vel_acc(FDCAN_HandleTypeDef *hfdcanx, uint8_t id, int16_t vel, int16_t acc)
 {
-    static uint8_t tdata[] = {0x06, 0x91, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00};
+    static uint8_t tdata[] = {0x06, 0x91, 0x02, 0x00, 0x00, 0x00, 0x00};
 
     my_memcpy(&tdata[3], &vel, sizeof(int16_t));
     my_memcpy(&tdata[5], &acc, sizeof(int16_t));
