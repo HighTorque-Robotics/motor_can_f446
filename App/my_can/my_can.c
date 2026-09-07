@@ -1,9 +1,5 @@
 #include "my_can.h"
-#include "motor.h"
 CAN_TxHeaderTypeDef tx_header;
-
-motor_state_t motor_state;
-uint8_t motor_read_flag = 0;
 
 uint32_t get_fdcan_dlc(uint16_t size)
 {

@@ -5,25 +5,6 @@
 #include "can.h"
 #include <string.h>
 
-typedef struct
-{
-    uint32_t id;
-    float position;
-    float velocity;
-    float torque;
-} motor_state_s;
-
-typedef struct
-{
-    union
-    {
-        motor_state_s motor;
-        uint8_t data[16];
-    } motor_data;
-} motor_state_t;
-
-extern motor_state_t motor_state;
-extern uint8_t motor_read_flag;
 /* Helper to convert between data size and CAN DLC values (0-8) */
 uint32_t get_fdcan_dlc(uint16_t size);
 uint16_t get_fdcan_data_size(uint32_t dlc);
