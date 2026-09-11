@@ -12,15 +12,9 @@
 /* ---- 数据类型 (由 convert.h 的 data_type_t 枚举左移16位派生, 只改枚举即可同步) ---- */
 #define  ID_PREFIX_TINT16_NOHDR     ((uint32_t)TINT16_NOHDR << 16)  // bits[17:16]=00
 #define  ID_PREFIX_TINT16           ((uint32_t)TINT16       << 16)  // bits[17:16]=01
-#define  ID_PREFIX_TINT32           ((uint32_t)TINT32       << 16)  // bits[17:16]=10
-#define  ID_PREFIX_TFLOAT           ((uint32_t)TFLOAT       << 16)  // bits[17:16]=11
 
 /* 经典 CAN (bxCAN) 单帧数据区上限 8 字节, 超过 8 字节的控制模式(int32/float 及普通 MIT 帧)不移植 */
 #define  CAN_CLASSIC_DATA_MAX       8
-
-/* CAN MIT 模式: CAN ID bit[18]=1 (见 FDCan_Protocol.md 表1), MIT 发送标题 = 0x58000 = ID_MIT_FLAG | ID_PREFIX_TINT16
- * 8 字节位打包, 参数顺序 pos(16bit) -> vel(12bit) -> tqe前馈(12bit) -> Kp(12bit) -> Kd(12bit) */
-#define  ID_MIT_FLAG                (0x01u << 18)
 
 
 /* 底层发送: 自动置 bit[15]=1 (控制帧方向), >0x7FF 自动扩展帧 */
@@ -51,8 +45,8 @@ void hightorque_vel_acc_int16(CAN_HandleTypeDef *hcan, uint8_t id, int16_t vel, 
 /* 位置、速度、加速度限制（梯形控制） */
 void hightorque_pos_vel_acc_int16(CAN_HandleTypeDef *hcan, uint8_t id, int16_t pos, int16_t vel_max, int16_t acc);
 
-/* MIT 运控模式 (预留接口, CAN MIT: CAN ID bit[18]=1, 8字节位打包适配经典 CAN,
- * 缩放与位排布均已由厂家参考代码核对确认, 可直接使用) */
+/* 运控模式 int16 (输出力矩 = 位置偏差 * Mkp + 速度偏差 * Mkd + 前馈力矩)
+ * pos 单位 0.0001 圈, vel 单位 0.00025 转/秒, tqe 单位见文档, kp/kd 内部 Mkp/Mkd = 值 × 0.1, CAN ID = 0x10000 | id */
 void hightorque_pos_vel_tqe_kp_kd_int16(CAN_HandleTypeDef *hcan, uint8_t id,
                                         int16_t pos, int16_t vel, int16_t tqe, int16_t kp, int16_t kd);
 

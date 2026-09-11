@@ -169,7 +169,7 @@ void motor_pos_vel(port_t portx, const data_type_t type, const uint8_t id, const
  * @param tqe 最大力矩，电机转动过程中输出力矩不会超过这个值，单位牛米（Nm）
  */
 void motor_pos_vel_MAXtqe(port_t portx, const data_type_t type, const uint8_t id,
-                              const float pos, const float vel, const float tqe)
+                          const float pos, const float vel, const float tqe)
 {
     CAN_HandleTypeDef *fdcanHandle = motor_get_fdcan_pointer(portx);
     const float pos_turns = conv_to_turns(pos, MOTOR_DATA_TYPE_FLAG);
@@ -264,7 +264,7 @@ void motor_vel_acc(port_t portx, const data_type_t type, const uint8_t id, const
  * @param kd 单位可为牛米秒每转（Nm·s/rev）、牛米秒每弧度（Nm·s/rad）、或牛米秒每度（Nm·s/°），具体由宏定义 MOTOR_DATA_TYPE_FLAG 决定
  */
 void motor_pos_vel_tqe_kp_kd(port_t portx, const data_type_t type, const uint8_t id,
-                                   const float pos, const float vel, const float tqe, const float kp, const float kd)
+                             const float pos, const float vel, const float tqe, const float kp, const float kd)
 {
     CAN_HandleTypeDef *fdcanHandle = motor_get_fdcan_pointer(portx);
 
@@ -274,20 +274,20 @@ void motor_pos_vel_tqe_kp_kd(port_t portx, const data_type_t type, const uint8_t
     const float kp_turns = conv_from_turns(kp, MOTOR_DATA_TYPE_FLAG);
     const float kd_turns = conv_from_turns(kd, MOTOR_DATA_TYPE_FLAG);
 
-    /* float -> int */
-    const float pos_raw = pos_float2int(pos_turns, type);
-    const float vel_raw = vel_float2int(vel_turns, type);
-    const float tqe_raw = tqe_float2int(tqe, type);
-    const float kp_raw = pid_float2int(kp_turns, type);
-    const float kd_raw = pid_float2int(kd_turns, type);
+    /* 编码范围 (对应 can_mit_int2float): pos 16bit ±3.2768, vel 12bit ±10, tqe 12bit ±100, kp 12bit ±800, kd 12bit ±200
+     * 无符号偏移映射: 物理 0 = 量程中点, 打包仍走 0x10000|id int16 切片 */
+    const int16_t pos_raw = (int16_t)mit_pos_float2uint(pos_turns);
+    const int16_t vel_raw = (int16_t)mit_vel_float2uint(vel_turns);
+    const int16_t tqe_raw = (int16_t)mit_tqe_float2uint(tqe);
+    const int16_t kp_raw = (int16_t)mit_kp_float2uint(kp_turns);
+    const int16_t kd_raw = (int16_t)mit_kd_float2uint(kd_turns);
 
     switch (type)
     {
     case TINT16:
-        /* CAN MIT 模式 (CAN ID bit[18]=1) */
+        /* 运控模式 (CAN ID = 0x10000 | id) */
         hightorque_pos_vel_tqe_kp_kd_int16(fdcanHandle, id, pos_raw, vel_raw, tqe_raw, kp_raw, kd_raw);
         break;
-    /* TFLOAT/TINT32 控制帧超过经典 CAN 8 字节数据区, 不移植 */
     default:
         MOTOR_ERR();
         break;

@@ -192,6 +192,60 @@ float temp_int2float(const float in_data, const data_type_t type)
 }
 
 
+/**
+ * @brief MIT 运控编码: float -> n-bit 无符号偏移映射 (饱和限幅), 对应 can_mit_int2float 量程
+ * @param in_data 物理值
+ * @param min 量程下限
+ * @param max 量程上限
+ * @param bits 位宽
+ * @return 0 ~ (2^bits - 1) 的无符号原始值
+ * @note 电机端按 raw/(2^bits-1)×(max-min)+min 反解: 物理 0 落在量程中点
+ */
+static uint16_t mit_data_float2uint(const float in_data, const float min, const float max, const unsigned int bits)
+{
+    const float span = max - min;
+
+    if (span <= 0.0f)
+    {
+        return 0;
+    }
+
+    const float a = data_limit(in_data, max, min);  // 先钳位到量程内
+
+    return (uint16_t)((a - min) * ((1 << bits) - 1) / span);  // 再映射到 n-bit 偏移码
+}
+
+
+uint16_t mit_pos_float2uint(const float in_data)
+{
+    return mit_data_float2uint(in_data, -3.2768f, 3.2767f, 16);
+}
+
+
+uint16_t mit_vel_float2uint(const float in_data)
+{
+    return mit_data_float2uint(in_data, -10.0f, 10.0f, 12);
+}
+
+
+uint16_t mit_tqe_float2uint(const float in_data)
+{
+    return mit_data_float2uint(in_data, -100.0f, 100.0f, 12);
+}
+
+
+uint16_t mit_kp_float2uint(const float in_data)
+{
+    return mit_data_float2uint(in_data, -800.0f, 800.0f, 12);
+}
+
+
+uint16_t mit_kd_float2uint(const float in_data)
+{
+    return mit_data_float2uint(in_data, -200.0f, 200.0f, 12);
+}
+
+
 void my_memcpy(void *p1, const void *p2, const int16_t len)
 {
     if (len <= 0)

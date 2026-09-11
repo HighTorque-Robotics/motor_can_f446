@@ -159,35 +159,30 @@ void hightorque_pos_vel_acc_int16(CAN_HandleTypeDef *hcan, uint8_t id, int16_t p
 
 
 /**
- * @brief MIT 运控模式 int16 (CAN MIT 模式)
+ * @brief 运控模式 int16 (输出力矩 = 位置偏差 * Mkp + 速度偏差 * Mkd + 前馈力矩) (Mkp 表示电机内部 kp, Mkd 表示电机内部 kd)
  * @param hcan &hcanx
  * @param id 电机ID
- * @param pos 位置 raw (pos × 10000, 完整 int16)
- * @param vel 速度 raw (vel × 4000, 12bit)
- * @param tqe 前馈力矩 raw (tqe × 100, 12bit)
- * @param kp 位置刚度 raw (kp × 10, 12bit)
- * @param kd 速度阻尼 raw (kd × 10, 12bit)
- * @note CAN MIT 模式: CAN ID bit[18]=1 (发送 ID = ID_MIT_FLAG | ID_PREFIX_TINT16 | id = 0x580xx),
- *       8 字节位打包适配经典 CAN 数据区, 参数顺序 pos(16bit) -> vel(12bit) -> tqe前馈(12bit) -> Kp(12bit) -> Kd(12bit)
+ * @param pos 位置：单位 0.0001 圈，如 pos = 5000 表示转到 0.5 圈的位置
+ * @param vel 速度：单位 0.00025 转/秒，如 vel = 400 表示 0.1 转/秒
+ * @param tqe 前馈力矩（单位见文档）
+ * @param kp Mkp = kp * 0.1 (Mkp 表示电机内部 kp)
+ * @param kd Mkd = kd * 0.1 (Mkd 表示电机内部 kd)
  */
 void hightorque_pos_vel_tqe_kp_kd_int16(CAN_HandleTypeDef *hcan, uint8_t id,
                                         int16_t pos, int16_t vel, int16_t tqe, int16_t kp, int16_t kd)
 {
-    uint8_t cmd[8] = {0};
+    static uint8_t tdata[8] = {0};
 
-    /* 位排布: D[0]=pos[15:8]  D[1]=pos[7:0]  D[2]=vel[11:4]  D[3]=vel[3:0]+tqe[11:8]
-     *         D[4]=tqe[7:0]   D[5]=Kp[11:4]  D[6]=Kp[3:0]+Kd[11:8]   D[7]=Kd[7:0]
-     * 参数顺序: pos(16bit) -> vel(12bit) -> tqe前馈(12bit) -> Kp(12bit) -> Kd(12bit) */
-    cmd[0] = (pos >> 8) & 0xff;
-    cmd[1] = pos & 0xff;
-    cmd[2] = (vel >> 4) & 0xff;
-    cmd[3] = ((vel & 0x0f) << 4) | ((tqe >> 8) & 0x0f);
-    cmd[4] = tqe & 0xff;
-    cmd[5] = (kp >> 4) & 0xff;
-    cmd[6] = ((kp & 0x0f) << 4) | ((kd >> 8) & 0x0f);
-    cmd[7] = kd & 0xff;
+    tdata[0] = pos & 0xff;
+    tdata[1] = (pos >> 8) & 0xff;
+    tdata[2] = vel & 0xff;
+    tdata[3] = ((vel >> 8) & 0x0f) | ((tqe & 0x0f) << 4);
+    tdata[4] = (tqe >> 4) & 0xff;
+    tdata[5] = kp & 0xff;
+    tdata[6] = (kp >> 8) & 0x0f | ((kd & 0x0f) << 4);
+    tdata[7] = kd >> 4;
 
-    fdcan_send(hcan, ID_MIT_FLAG | ID_PREFIX_TINT16 | id, cmd, sizeof(cmd));
+    can_send(hcan, 0x58000 | id, tdata, sizeof(tdata));
 }
 
 

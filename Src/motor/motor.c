@@ -134,7 +134,7 @@ static void motor_process_state(CAN_HandleTypeDef *fdcanHandle, const uint8_t id
     {
     // ===================== FLAUT_POS_VEL_TQE (0x0E) 响应 =====================
     // 返回帧: 查询码(0x0E) | 错误码 | 位置 | 速度 | 力矩, 无模式字段
-    // 字段宽度由 CAN ID 类型位决定: TINT16=2B, TINT32/TFLOAT=4B
+    // 字段宽度由 CAN ID 类型位决定: TINT16=2B
     case FLAUT_POS_VEL_TQE:
     {
         switch (id_type)
@@ -151,34 +151,6 @@ static void motor_process_state(CAN_HandleTypeDef *fdcanHandle, const uint8_t id
             p_motor_state[id_index].position  = conv_from_turns(pos_int2float(pos, TINT16), MOTOR_DATA_TYPE_FLAG);
             p_motor_state[id_index].velocity  = conv_from_turns(vel_int2float(vel, TINT16), MOTOR_DATA_TYPE_FLAG);
             p_motor_state[id_index].torque    = tqe_int2float(tqe, TINT16);
-            break;
-        }
-        case TINT32:
-        {
-            int32_t pos = 0, vel = 0, tqe = 0;
-
-            my_memcpy((uint8_t *)&pos, p_data + 2, sizeof(int32_t));
-            my_memcpy((uint8_t *)&vel, p_data + 6, sizeof(int32_t));
-            my_memcpy((uint8_t *)&tqe, p_data + 10, sizeof(int32_t));
-
-            p_motor_state[id_index].fault     = p_data[1];
-            p_motor_state[id_index].position  = conv_from_turns(pos_int2float(pos, TINT32), MOTOR_DATA_TYPE_FLAG);
-            p_motor_state[id_index].velocity  = conv_from_turns(vel_int2float(vel, TINT32), MOTOR_DATA_TYPE_FLAG);
-            p_motor_state[id_index].torque    = tqe_int2float(tqe, TINT32);
-            break;
-        }
-        case TFLOAT:
-        {
-            float pos = 0, vel = 0, tqe = 0;
-
-            my_memcpy((uint8_t *)&pos, p_data + 2, sizeof(float));
-            my_memcpy((uint8_t *)&vel, p_data + 6, sizeof(float));
-            my_memcpy((uint8_t *)&tqe, p_data + 10, sizeof(float));
-
-            p_motor_state[id_index].fault     = p_data[1];
-            p_motor_state[id_index].position  = conv_from_turns(pos, MOTOR_DATA_TYPE_FLAG);
-            p_motor_state[id_index].velocity  = conv_from_turns(vel, MOTOR_DATA_TYPE_FLAG);
-            p_motor_state[id_index].torque    = tqe;
             break;
         }
         default:

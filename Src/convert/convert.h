@@ -64,6 +64,14 @@ float pid_int2float(const float in_data, const data_type_t type);
 float temp_int2float(const float in_data, const data_type_t type);
 
 
+/* MIT 运控编码: 按量程无符号偏移映射到 n bit (饱和限幅), 量程对应 can_mit_int2float */
+uint16_t mit_pos_float2uint(const float in_data);    /* 16bit, ±3.2768 圈 */
+uint16_t mit_vel_float2uint(const float in_data);    /* 12bit, ±10 圈/s */
+uint16_t mit_tqe_float2uint(const float in_data);    /* 12bit, ±100 Nm */
+uint16_t mit_kp_float2uint(const float in_data);     /* 12bit, ±800 */
+uint16_t mit_kd_float2uint(const float in_data);     /* 12bit, ±200 */
+
+
 /* 数据搬运 */
 void my_memcpy(void *p1, const void *p2, const int16_t len);
 
