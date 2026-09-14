@@ -1,5 +1,5 @@
-#ifndef _LIVELYBOT_CAN_H
-#define _LIVELYBOT_CAN_H
+#ifndef _HIGHTORQUE_CAN_H
+#define _HIGHTORQUE_CAN_H
 
 
 #include "main.h"

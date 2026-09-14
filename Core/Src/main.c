@@ -28,11 +28,13 @@
 #include "my_can.h"
 #include "led.h"
 
-#include "livelybot_can.h"
+#include "hightorque_can.h"
 #include "motor.h"
 #include "motor_control.h"
 #include "motor_config.h"
 #include "test_motor.h"
+
+#include "debug_print.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -99,31 +101,30 @@ int main(void)
     MX_GPIO_Init();
     MX_DMA_Init();
     MX_CAN1_Init();
-    MX_UART4_Init();
     MX_CAN2_Init();
+    MX_UART5_Init();
     /* USER CODE BEGIN 2 */
     can_filter_init(&hcan1);
     can_filter_init(&hcan2);
-    printf("DM_Test\r\n");
+    printf("此工程引脚配置适用于damiao_MC01\r\n");
+    printf("例程版本号："MOTOR_SDK_VERSION"\r\n");
     /* USER CODE END 2 */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
     while (1)
     {
-        if(HAL_GetTick() - ticks >= 500)
+        if(HAL_GetTick() - ticks >= 10)
         {
             ticks = HAL_GetTick();
             test_motor_control(1);
-
         }
 
         if(HAL_GetTick() - tick_1 >= 1000)
         {
             tick_1 = HAL_GetTick();
             led_toggle();
-
-            motor_print_state();
+            test_motor_print_state();
         }
         /* USER CODE END WHILE */
 
