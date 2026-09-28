@@ -94,6 +94,6 @@ void motor_process_state_all(void);
 
 
 
-#define  MOTOR_SDK_VERSION   "4.0.0-can1"
+#define  MOTOR_SDK_VERSION   "4.0.0"
 
 #endif

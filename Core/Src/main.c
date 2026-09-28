@@ -33,8 +33,6 @@
 #include "motor_control.h"
 #include "motor_config.h"
 #include "test_motor.h"
-
-#include "debug_print.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -76,9 +74,8 @@ void SystemClock_Config(void);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-    uint32_t ticks = 0;
-    uint32_t tick_1 = 0;
-    uint8_t cnt = 0;
+    uint32_t tick_100ms = 0;
+    uint32_t tick_1000ms = 0;
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -114,15 +111,15 @@ int main(void)
     /* USER CODE BEGIN WHILE */
     while (1)
     {
-        if(HAL_GetTick() - ticks >= 10)
+        if(HAL_GetTick() - tick_100ms >= 100)
         {
-            ticks = HAL_GetTick();
+            tick_100ms = HAL_GetTick();
             test_motor_control(1);
         }
 
-        if(HAL_GetTick() - tick_1 >= 1000)
+        if(HAL_GetTick() - tick_1000ms >= 1000)
         {
-            tick_1 = HAL_GetTick();
+            tick_1000ms = HAL_GetTick();
             led_toggle();
             test_motor_print_state();
         }

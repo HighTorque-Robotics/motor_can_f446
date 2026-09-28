@@ -12,14 +12,12 @@
 /* ---- 数据类型 (由 convert.h 的 data_type_t 枚举左移16位派生, 只改枚举即可同步) ---- */
 #define  ID_PREFIX_TINT16_NOHDR     ((uint32_t)TINT16_NOHDR << 16)  // bits[17:16]=00
 #define  ID_PREFIX_TINT16           ((uint32_t)TINT16       << 16)  // bits[17:16]=01
+#define  ID_PREFIX_MIT              (0x40000u |  ID_PREFIX_TINT16)  // MIT模式特殊CAN ID 
 
-/* 经典 CAN (bxCAN) 单帧数据区上限 8 字节, 超过 8 字节的控制模式(int32/float 及普通 MIT 帧)不移植 */
+#define  ID_SEND_FRAME              0x8000u                          // bits[15]=01
+
+/* 经典 CAN (bxCAN) 单帧数据区上限 8 字节*/
 #define  CAN_CLASSIC_DATA_MAX       8
-
-
-/* 底层发送: 自动置 bit[15]=1 (控制帧方向), >0x7FF 自动扩展帧 */
-void fdcan_send(CAN_HandleTypeDef *hcan, uint32_t id, uint8_t *data, uint16_t size);
-
 
 /* dq 电压模式 (d=0, q=实际电压) */
 void hightorque_dq_volt_int16(CAN_HandleTypeDef *hcan, uint8_t id, int16_t d, int16_t q);
