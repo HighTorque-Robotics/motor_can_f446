@@ -73,7 +73,7 @@ CAN_HandleTypeDef *motor_get_fdcan_pointer(port_t portx)
 /**
  * @brief 获取指定端口和ID的电机状态指针
  * @param portx 指定电机所在的端口，可能的值为 PORT1 或 PORT2
- * @param id 29 位扩展 CAN ID
+ * @param id CAN ID
  * @return 返回类型为 `p_motor_state_s` 的指针
  */
 p_motor_state_s motor_get_state(port_t portx, uint8_t id)
