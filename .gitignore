@@ -7,7 +7,7 @@ MDK-ARM/*.bak
 MDK-ARM/*.lst
 MDK-ARM/*.dep
 MDK-ARM/*.htm
-
+MDK-ARM/RTE/*
 # ===== STM32CubeMX 自动生成文件 =====
 # CubeMX 每次重新生成代码都会更新的生成物索引, 不需要版本控制
 .mxproject
