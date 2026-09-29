@@ -227,9 +227,12 @@ void motor_process_state_all()
 
 
 /**
- * @brief CAN 接收 FIFO0 中断回调 (主循环轮询之外的中断兜底)
+ * @brief CAN 接收 FIFO0 中断回调
+ *
+ * 中断里消除中断源
  */
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
     // motor_process_state_all();
+    HAL_CAN_DeactivateNotification(hcan, CAN_IT_RX_FIFO0_MSG_PENDING);
 }

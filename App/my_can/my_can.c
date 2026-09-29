@@ -16,13 +16,13 @@ void can_filter_init(CAN_HandleTypeDef *hcan)
     can_filter_st.FilterFIFOAssignment = CAN_RX_FIFO0;
     HAL_CAN_ConfigFilter(hcan, &can_filter_st);
     HAL_CAN_Start(hcan);
-    HAL_CAN_DeactivateNotification(hcan, CAN_IT_RX_FIFO0_MSG_PENDING);
+    HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO0_MSG_PENDING);
 
     can_filter_st.SlaveStartFilterBank = 14;
     can_filter_st.FilterBank = 14;
     HAL_CAN_ConfigFilter(hcan, &can_filter_st);
     HAL_CAN_Start(hcan);
-    HAL_CAN_DeactivateNotification(hcan, CAN_IT_RX_FIFO0_MSG_PENDING);
+    HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO0_MSG_PENDING);
 }
 
 uint32_t can_size2dlc(uint16_t size)
