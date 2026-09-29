@@ -25,33 +25,30 @@ void test_motor_control(const uint8_t id)
         motor_tqe(portx, id, 0.5f);
         break;
     case 5:
-        motor_pos_vel(portx, id, 0.0, 0.5f);
-        break;
-    case 6:
         motor_pos_vel_MAXtqe(portx, id, -0.5, 0.5f, 0.5f);
         break;
-    case 7:
+    case 6:
         motor_pos_velmax_acc(portx, id, 0, 1.0f, 0.1);
         break;
-    case 8:
+    case 7:
         motor_pos_vel_tqe_kp_kd(portx, id, -0.7, 0.5, 0.2, 5, 1);
         break;
-    case 9:
+    case 8:
         motor_vel_acc(portx, id, -1.0f, 0.1);
         break;
-    case 10:
+    case 9:
         motor_stop(portx, id);
         break;
-    case 11:
+    case 10:
         motor_request_state(portx, id);
         break;
-    case 12:
+    case 11:
         motor_request_fw_version(portx, id);
         break;
-    case 13:
+    case 12:
         motor_brake(portx, id);
         break;
-    case 14:
+    case 13:
         motor_request_model(portx, id);
         break;
     default:

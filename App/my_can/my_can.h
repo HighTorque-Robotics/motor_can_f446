@@ -6,11 +6,12 @@
 #include <string.h>
 
 /* Helper to convert between data size and CAN DLC values (0-8) */
-uint32_t get_fdcan_dlc(uint16_t size);
-uint16_t get_fdcan_data_size(uint32_t dlc);
+uint32_t can_size2dlc(uint16_t size);
+uint16_t can_dlc2size(uint32_t dlc);
+
 
 /* Use CAN interface types to be consistent with the project (CAN_HandleTypeDef/CAN_TxHeaderTypeDef) */
 void can_filter_init(CAN_HandleTypeDef *hcan);
-uint8_t can_send(CAN_HandleTypeDef *hcan, uint32_t id, uint8_t *msg, uint16_t len);
+void can_send(CAN_HandleTypeDef *hcan, uint32_t id, uint8_t *msg, uint16_t len);
 
 #endif
