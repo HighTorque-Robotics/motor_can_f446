@@ -146,7 +146,7 @@ void hightorque_pos_vel_acc_int16(CAN_HandleTypeDef *hcan, uint8_t id, int16_t p
 
 
 /**
- * @brief 运控模式 int16 (输出力矩 = 位置偏差 * KP + 速度偏差 * KD + 前馈力矩)
+ * @brief 运控模式 int16 (输出力矩 = (目标位置-当前位置) * kp + (目标速度-当前速度) * kd + 前馈力矩)
  * @param hcan &hcanx
  * @param id 电机ID
  * @param pos 位置：16bit 无符号偏移映射，量程 ±3.2768 圈
